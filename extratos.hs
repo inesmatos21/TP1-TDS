@@ -48,22 +48,22 @@ filtro (Ext si ((d, s, mov):t)) strings = if verificaString s strings then (d, m
 -- Exercicio 3
 
 isCredito :: Movimento -> Bool
-Credito m = True
-Debito m = False
+isCredito (Credito m) = True
+isCredito _ = False
 
 isDebito :: Movimento -> Bool
-Credito m = False
-Debito m = True
-
-sumCred :: [Movimento] -> Float
-sumCred [] = 0
-sumCred (Debito m : movs) = 0 + sumCred movs
-sumCred (Credito m : movs) = m + sumCred movs
-
-sumDeb :: [Movimento] -> Float
-sumCred 
-sumDeb (Credito m : movs) = m + sumDeb movs
-sumDeb (Debito m : movs) = 0 + sumDeb movs
+isDebito (Debito m) = True
+isDebito _ = False
 
 creDeb :: Extracto -> (Float, Float)
-creDeb (Ext si ((_,_,mov):t)) = (sumCred mov, sumCred)
+creDeb (Ext _ movs) = (totalCred, totalDeb)
+       where
+              totalCred = sum [valorMov m | (_,_,m) <- movs, isCredito m]
+              totalDeb = sum [valorMov m | (_,_,m) <- movs, isDebito m]
+
+-- Exercicio 4
+
+saldo :: Extracto -> Float
+saldo (Ext s movs) = s + totalCred - totalDeb
+  where
+    (totalCred,totalDeb) = creDeb (Ext s movs)
