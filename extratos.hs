@@ -1,3 +1,6 @@
+import Test.HUnit
+import Test.QuickCheck
+
 data Movimento = Credito Float
                | Debito Float
                deriving Show
