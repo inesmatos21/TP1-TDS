@@ -67,3 +67,41 @@ saldo :: Extracto -> Float
 saldo (Ext s movs) = s + totalCred - totalDeb
   where
     (totalCred,totalDeb) = creDeb (Ext s movs)
+
+-- Geradores
+
+round2 :: Float -> Float
+round2 x = fromIntegral (round (x * 100)) / 100
+
+genDebito :: Gen Float
+genDebito = round2 <$> choose (0.0, 200)
+
+genCredito :: Gen Float
+genCredito = round2 <$> choose (700.0, 1200)
+
+genMovimento :: Gen Movimento
+genMovimento = frequency
+  [(80, do
+        Debito <$> genDebito)
+  ,(20, do
+        Credito <$> genCredito)
+  ]
+
+genData :: Gen Data
+genData = do
+       dia <- elements[1..31]
+       mes <- if dia == 31 then elements[1,3,5,7,8,10,12] else elements[1..12]
+       ano <- elements[2000..2026]
+       return $ D dia mes ano
+
+listOfDebits =
+  [ "Restaurante" , "Supermercado" , "Telefone"
+  , "Internet" , "Eletricidade" , "Agua"
+  , "Combustivel" , "Farmacia" , "Cinema"
+  , "Roupa" , "Livraria" , "Cafe"
+  , "Uber" , "Ginasio" , "Seguro"
+  ]
+
+genString :: Movimento -> Gen String
+genString (Credito x) = return "Salario"
+genString (Debito x) = elements listOfDebits
