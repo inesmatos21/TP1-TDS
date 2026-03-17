@@ -1,6 +1,7 @@
 import Test.HUnit
 import Test.QuickCheck
 import Data.Foldable (Foldable(sum))
+import Data.Bifunctor
 
 data Movimento = Credito Float
                | Debito Float
@@ -73,19 +74,54 @@ saldo (Ext s movs) = s + totalCred - totalDeb
 round2 :: Float -> Float
 round2 x = fromIntegral (round (x * 100)) / 100
 
-genDebito :: Gen Float
-genDebito = round2 <$> choose (0.0, 200)
+genDebito :: Gen (String, Float)
+genDebito = second round2 <$> frequency
+  [ (2,  (,) "Restaurante"  <$> choose (10.0, 20.0))
+  , (5,  (,) "Supermercado" <$> choose (5.0,  100.0))
+  , (1,  (,) "Telefone"     <$> choose (10.0, 40.0))
+  , (1,  (,) "Internet"     <$> choose (10.0, 50.0))
+  , (1,  (,) "Eletricidade" <$> choose (40.0, 100.0))
+  , (1,  (,) "Agua"         <$> choose (20.0, 60.0))
+  , (4,  (,) "Combustivel"  <$> choose (10.0, 80.0))
+  , (2,  (,) "Farmacia"     <$> choose (5.0,  30.0))
+  , (2,  (,) "Cinema"       <$> choose (5.0,  10.0))
+  , (3,  (,) "Roupa"        <$> choose (2.0,  100.0))
+  , (2,  (,) "Livraria"     <$> choose (5.0,  20.0))
+  , (15, (,) "Cafe"         <$> choose (0.1,  5.0))
+  , (2,  (,) "Uber"         <$> choose (2.5,  20.0))
+  , (1,  (,) "Ginasio"      <$> choose (20.0,  30.0))
+  , (1,  (,) "Seguro"       <$> choose (20.0, 90.0))
+  ]
+
+debitosObrigatorios :: [(String, (Float, Float))]
+debitosObrigatorios =
+  [ ("Agua",         (20.0,  60.0))
+  , ("Eletricidade", (40.0,  100.0))
+  , ("Internet",     (10.0,  50.0))
+  , ("Telefone",     (10.0,  40.0))
+  , ("Seguro",       (20.0,  90.0))
+  ]
+
+gerarDebitosObrigatorios :: Gen [(String, Movimento)]
+gerarDebitosObrigatorios = mapM genOne debitosObrigatorios
+  where
+    genOne (nome, (lo, hi)) = do
+      val <- round2 <$> choose (lo, hi)
+      return (nome, Debito val)
 
 genCredito :: Gen Float
 genCredito = round2 <$> choose (700.0, 1200)
 
-genMovimento :: Gen Movimento
+genMovimento :: Gen (String, Movimento)
 genMovimento = frequency
-  [(80, do
-        Debito <$> genDebito)
-  ,(20, do
-        Credito <$> genCredito)
+  [ (95, do
+      (nome, val) <- genDebito
+      return (nome, Debito val))
+  , (5, do
+      val <- genCredito
+      return ("Salario", Credito val))
   ]
+
 
 genData :: Gen Data
 genData = do
@@ -94,13 +130,11 @@ genData = do
        ano <- elements[2000..2026]
        return $ D dia mes ano
 
-listOfDebits =
-  [ "Restaurante" , "Supermercado" , "Telefone"
-  , "Internet" , "Eletricidade" , "Agua"
-  , "Combustivel" , "Farmacia" , "Cinema"
-  , "Roupa" , "Livraria" , "Cafe"
-  , "Uber" , "Ginasio" , "Seguro"
-  ]
+listOfDebits :: [String]
+listOfDebits = ["Restaurante", "Supermercado", "Telefone", "Internet",
+                "Eletricidade", "Agua", "Combustivel", "Farmacia",
+                "Cinema", "Roupa", "Livraria", "Cafe",
+                "Uber", "Ginasio", "Seguro"]
 
 genString :: Movimento -> Gen String
 genString (Credito x) = return "Salario"
