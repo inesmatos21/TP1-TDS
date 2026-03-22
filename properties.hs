@@ -3,7 +3,6 @@ module Properties where
 import Test.QuickCheck
 import Functions
 import Generators
-import Functions (Extracto, Movimento, valorMov)
 
 -- Propriedade que verifica se o saldo inicial de um extrato é o saldo inicial do anterior mais os movimentos
 
@@ -27,6 +26,10 @@ prop_verDataExtracto (Ext _ ((D _ m a, _, _):movs)) = mesmoMesAno m a movs
 mesmoMesAno :: Int -> Int -> [(Data, String, Movimento)] -> Bool
 mesmoMesAno _ _ [] = True
 mesmoMesAno m a ((D _ m2 a2, _, _):xs) = m == m2 && a == a2 && mesmoMesAno m a xs
+
+prop_verDataExtractos :: Extractos -> Bool
+prop_verDataExtractos (Extractos exts) = 
+  all prop_verDataExtracto exts
 
 -- Propriedade que verifica que o saldo nunca fica negativo
 
