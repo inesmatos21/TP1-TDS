@@ -4,7 +4,6 @@ import Test.QuickCheck
 import Functions
 import Generators
 import Functions
-import Functions (Extractos)
 
 -- Propriedade que verifica se o saldo inicial de um extrato é o saldo inicial do anterior mais os movimentos
 
