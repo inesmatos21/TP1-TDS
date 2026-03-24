@@ -134,7 +134,7 @@ nextMonth (D d m a) | m == 12 = D 1 1 (a + 1)
 instance Arbitrary Extracto where
   arbitrary = do
     d <- genData
-    s <- round2 <$> choose (500.0, 1000.0)
+    s <- genSalario
     genExtracto s d
 
 instance Arbitrary Extractos where

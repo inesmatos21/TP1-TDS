@@ -4,6 +4,7 @@ import Test.QuickCheck
 import Functions
 import Generators
 import Functions
+import Functions (Extractos)
 
 -- Propriedade que verifica se o saldo inicial de um extrato é o saldo inicial do anterior mais os movimentos
 
@@ -108,3 +109,12 @@ prop_checkDebCred ext = numDeb >= numCred
 
 prop_checkDebCredExtractos :: Extractos -> Bool
 prop_checkDebCredExtractos (Extractos exts) = all prop_checkDebCred exts
+
+-- Propriedade que verifica que o saldo após os movimentos é o mesmo, indepentemente da ordem dos movimentos
+
+prop_saldoIndependenteOrdem :: Extracto -> Bool
+prop_saldoIndependenteOrdem (Ext s movs) =
+  saldo (Ext s movs) == saldo (Ext s (reverse movs))
+
+prop_saldoIndependenteOrdemExtractos :: Extractos -> Bool
+prop_saldoIndependenteOrdemExtractos (Extractos exts) = all prop_saldoIndependenteOrdem exts
