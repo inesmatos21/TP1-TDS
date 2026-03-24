@@ -3,6 +3,7 @@ module Properties where
 import Test.QuickCheck
 import Functions
 import Generators
+import Functions (Extractos)
 
 -- Propriedade que verifica se o saldo inicial de um extrato é o saldo inicial do anterior mais os movimentos
 
@@ -91,3 +92,19 @@ prop_movimentosPositivos (Ext _ movs) = valoresPositivos movs
 valoresPositivos :: [(Data, String, Movimento)] -> Bool
 valoresPositivos [] = True
 valoresPositivos ((_, _, mov):rest) = valorMov mov > 0.00 && valoresPositivos rest
+
+-- Propriedade que verifica que há mais débitos do que créditos
+
+numCreDeb :: Extracto -> (Float, Float)
+numCreDeb (Ext _ movs) = (totalCred, totalDeb)
+       where
+              totalCred = sum [ 1 | (_,_,m) <- movs, isCredito m]
+              totalDeb = sum [1 | (_,_,m) <- movs, isDebito m]
+
+prop_checkDebCred :: Extracto -> Bool
+prop_checkDebCred ext = numDeb >= numCred
+    where
+        (numCred, numDeb) = numCreDeb ext
+
+prop_checkDebCredExtractos :: Extractos -> Bool
+prop_checkDebCredExtractos (Extractos exts) = all prop_checkDebCred exts

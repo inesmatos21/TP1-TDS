@@ -24,19 +24,26 @@ genDebito = do
     ]
   return (nome, round2 val)
 
+genCredito :: Gen (String, Float)
+genCredito = do
+  (nome, val) <- frequency
+    [ (2,  do v <- choose (10.0,50.0); return ("Betclic", v))
+    , (2,  do v <- choose (15.0, 50.0); return ("Reembolso", v))
+    , (5,  do v <- choose (10.0, 40.0); return ("MBWay Recebido", v))
+    , (1,  do v <- choose (80.0, 150.0); return ("Freelance", v))
+    , (3,  do v <- choose (10.0,200.0); return ("Transferencia", v))
+    ]
+  return (nome, round2 val)
+
 genSalario :: Gen Float
 genSalario = round2 <$> choose (700.0, 1200)
-
-genCredito :: Gen Float
-genCredito = round2 <$> choose (80.0, 200)
-
 
 genMovimento :: Gen (String,Movimento)
 genMovimento =  frequency [
   (99, do (s,v) <- genDebito
           return (s, Debito v)),
-  (1, do v <- genCredito
-         return ("Betclic", Credito v))]
+  (1, do (s,v) <- genCredito
+         return (s, Credito v))]
 
 
 genData :: Gen Data
@@ -65,8 +72,6 @@ getMesData (D d m a) = m
 
 getAnoData :: Data -> Int
 getAnoData (D d m a) = a
-
--- Geradores
 
 -- Gera movimentos num dia em especifico
 genMovsDia :: Int -> Float -> Data -> Gen (Float, [(Data, String, Movimento)])
