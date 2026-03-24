@@ -142,7 +142,7 @@ instance Arbitrary Extractos where
 
 genExtractos n = do
   d <- genData
-  s <- round2 <$> choose (500.0, 1000.0)
+  s <- genSalario
   Extractos <$> genListExtractos n s d
 
 genListExtractos :: Int -> Float -> Data -> Gen [Extracto]

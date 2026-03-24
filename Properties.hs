@@ -3,7 +3,7 @@ module Properties where
 import Test.QuickCheck
 import Functions
 import Generators
-import Functions (Extractos)
+import Functions
 
 -- Propriedade que verifica se o saldo inicial de um extrato é o saldo inicial do anterior mais os movimentos
 
@@ -51,15 +51,15 @@ verificaTodosOrdenados [] = True
 verificaTodosOrdenados (extrato : resto) = prop_movimentosOrdenados extrato && verificaTodosOrdenados resto
 
 
--- Propriedade que verifica se os extratos estão por ordem cronológica
+-- Propriedade que verifica se os extractos estão por ordem cronológica
 
-prop_extratosCronologicos :: Extractos -> Bool
-prop_extratosCronologicos (Extractos exts) = extratosOrdenados exts
+prop_extractosCronologicos :: Extractos -> Bool
+prop_extractosCronologicos (Extractos exts) = extractosOrdenados exts
 
-extratosOrdenados :: [Extracto] -> Bool
-extratosOrdenados [] = True
-extratosOrdenados [_] = True
-extratosOrdenados (e1 : e2 : rest) = verificaOrdem e1 e2 && extratosOrdenados (e2 : rest)
+extractosOrdenados :: [Extracto] -> Bool
+extractosOrdenados [] = True
+extractosOrdenados [_] = True
+extractosOrdenados (e1 : e2 : rest) = verificaOrdem e1 e2 && extractosOrdenados (e2 : rest)
 
 verificaOrdem :: Extracto -> Extracto -> Bool
 verificaOrdem (Ext _ []) _ = True
